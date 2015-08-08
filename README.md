@@ -28,7 +28,8 @@ $ go get -d github.com/tcnksm/boot2k8s
 
 ## References
 
-- [Running Kubernetes locally via Docker](https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/getting-started-guides/docker.md)
+- [Running Kubernetes locally via Docker](https://github.com/GoogleCloudPlatform/kubernetes/blob/release-1.0/docs/getting-started-guides/docker.md)
+- [1 command to Kubernetes with Docker compose](http://sebgoa.blogspot.jp/2015/04/1-command-to-kubernetes-with-docker.html)
 
 ## Author
 
