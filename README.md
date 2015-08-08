@@ -1,5 +1,13 @@
 # boot2k8s
 
+[![GitHub release](http://img.shields.io/github/release/tcnksm/boot2k8s.svg?style=flat-square)][release]
+[![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)][license]
+[![Go Documentation](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)][godocs]
+
+[release]: https://github.com/tcnksm/boot2k8s/releases
+[license]: https://github.com/tcnksm/boot2k8s/blob/master/LICENSE
+[godocs]: http://godoc.org/github.com/tcnksm/boot2k8s
+
 boot2k8s start single node [kubernetes](https://github.com/googlecloudplatform/kubernetes) cluster on local environment with _one command_ using docker. 
 
 ## Usage
