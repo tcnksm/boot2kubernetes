@@ -5,6 +5,8 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"os"
+	"os/signal"
 	"strings"
 
 	"github.com/docker/libcompose/docker"
@@ -47,6 +49,7 @@ func (c *UpCommand) Run(args []string) int {
 	// Setup new docker-compose project
 	project, err := docker.NewProject(&docker.Context{
 		Context: project.Context{
+			Log:          true,
 			ComposeBytes: compose,
 			ProjectName:  "boot2k8s",
 		},
@@ -65,7 +68,13 @@ func (c *UpCommand) Run(args []string) int {
 		return 1
 	}
 
-	// Write your code here
+	sigCh := make(chan os.Signal)
+	signal.Notify(sigCh, os.Interrupt)
+	select {
+	case <-sigCh:
+		c.Ui.Error("Interrupted")
+	}
+
 	return 0
 }
 
