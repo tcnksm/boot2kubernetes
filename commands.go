@@ -12,6 +12,12 @@ func Commands(meta *command.Meta) map[string]cli.CommandFactory {
 				Meta: *meta,
 			}, nil
 		},
+		"forward": func() (cli.Command, error) {
+			return &command.ForwardCommand{
+				Meta: *meta,
+			}, nil
+		},
+
 		"down": func() (cli.Command, error) {
 			return &command.DownCommand{
 				Meta: *meta,
