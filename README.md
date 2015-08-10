@@ -1,4 +1,4 @@
-# boot2k8s
+# boot2kubernetes
 
 [![GitHub release](http://img.shields.io/github/release/tcnksm/boot2k8s.svg?style=flat-square)][release]
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)][license]
