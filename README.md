@@ -8,9 +8,9 @@
 [license]: https://github.com/tcnksm/boot2kubernetes/blob/master/LICENSE
 [godocs]: http://godoc.org/github.com/tcnksm/boot2kubernetes
 
-`boot2k8s` start single node [kubernetes](https://github.com/googlecloudplatform/kubernetes) cluster on local environment with *_one command_* using docker.
+`boot2k8s` start single node [kubernetes](https://github.com/googlecloudplatform/kubernetes) cluster on local environment with _**one command**_ using docker :whale: .
 
-The purpose of this projcet is building kubernetes environment in fast way for testing or experiment on your development enviromnet. Only requirement is docker :whale: .
+The purpose of this projcet is building kubernetes environment in fast way for testing or experiment on your development enviromnet.
 
 ## Usage
 
@@ -21,11 +21,6 @@ $ boot2k8s up
 ```
 
 This command pulls required docker images and starts them.  After this, you can start to run `kubectl` (You need to install it). If you run docker on boot2docker-vm, it also starts port forwarding server for `kubectl`.
-
-```bash
-$ kubectl get node
-...
-```
 
 To down (stop) cluster,
 
