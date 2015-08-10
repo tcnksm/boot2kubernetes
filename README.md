@@ -18,7 +18,7 @@ To up cluster,
 $ boot2k8s up
 ```
 
-This command pulls required docker images and starts them.  After this, you can start to run `kubectl` (You need to install it). If you run docker on boot2docker-vm, it also starts port forwarding server for `kubectl`.
+This command pulls required docker images and starts them. You can check which image is used, or which option/command in [`k8s.yml`](/config/k8s.yml). After container is running, you can start to run `kubectl` (You need to install it). If you run docker on boot2docker-vm, it also starts port forwarding server for `kubectl`. 
 
 To down (stop) cluster,
 
