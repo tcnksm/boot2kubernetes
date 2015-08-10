@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/mitchellh/cli"
-	"github.com/tcnksm/boot2k8s/command"
+	"github.com/tcnksm/boot2kubernetes/command"
 )
 
 func Run(args []string) int {

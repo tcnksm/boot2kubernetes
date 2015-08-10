@@ -1,14 +1,14 @@
 # boot2kubernetes
 
-[![GitHub release](http://img.shields.io/github/release/tcnksm/boot2k8s.svg?style=flat-square)][release]
+[![GitHub release](http://img.shields.io/github/release/tcnksm/boot2kubernetes.svg?style=flat-square)][release]
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)][license]
 [![Go Documentation](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)][godocs]
 
-[release]: https://github.com/tcnksm/boot2k8s/releases
-[license]: https://github.com/tcnksm/boot2k8s/blob/master/LICENSE
-[godocs]: http://godoc.org/github.com/tcnksm/boot2k8s
+[release]: https://github.com/tcnksm/boot2kubernetes/releases
+[license]: https://github.com/tcnksm/boot2kubernetes/blob/master/LICENSE
+[godocs]: http://godoc.org/github.com/tcnksm/boot2kubernetes
 
-boot2k8s start single node [kubernetes](https://github.com/googlecloudplatform/kubernetes) cluster on local environment with _one command_ using docker. 
+`boot2k8s` start single node [kubernetes](https://github.com/googlecloudplatform/kubernetes) cluster on local environment with _one command_ using docker. 
 
 ## Usage
 
@@ -21,12 +21,12 @@ $ boot2k8s up
 To install, use `go get`:
 
 ```bash
-$ go get -d github.com/tcnksm/boot2k8s
+$ go get -d github.com/tcnksm/boot2kubernetes
 ```
 
 ## Contribution
 
-1. Fork ([https://github.com/tcnksm/boot2k8s/fork](https://github.com/tcnksm/boot2k8s/fork))
+1. Fork ([https://github.com/tcnksm/boot2kubernetes/fork](https://github.com/tcnksm/boot2kubernetes/fork))
 1. Create a feature branch
 1. Commit your changes
 1. Rebase your local changes against the master branch

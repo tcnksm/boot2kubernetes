@@ -11,7 +11,7 @@ import (
 
 	"github.com/docker/libcompose/docker"
 	"github.com/docker/libcompose/project"
-	"github.com/tcnksm/boot2k8s/config"
+	"github.com/tcnksm/boot2kubernetes/config"
 )
 
 type UpCommand struct {

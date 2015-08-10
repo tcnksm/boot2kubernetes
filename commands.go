@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/mitchellh/cli"
-	"github.com/tcnksm/boot2k8s/command"
+	"github.com/tcnksm/boot2kubernetes/command"
 )
 
 func Commands(meta *command.Meta) map[string]cli.CommandFactory {

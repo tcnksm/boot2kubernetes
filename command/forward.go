@@ -15,7 +15,7 @@ import (
 	"github.com/mitchellh/go-homedir"
 
 	// This should be temporary, libcompose imports ssh package
-	"github.com/tcnksm/boot2k8s/vendor/ssh"
+	"github.com/tcnksm/boot2kubernetes/vendor/ssh"
 )
 
 const (
