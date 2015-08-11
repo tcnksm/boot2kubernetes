@@ -5,12 +5,16 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"os/signal"
+	"runtime"
 	"strings"
+	"time"
 
 	"github.com/docker/libcompose/docker"
 	"github.com/docker/libcompose/project"
+	"github.com/hashicorp/logutils"
 	"github.com/tcnksm/boot2kubernetes/config"
 )
 
@@ -21,8 +25,10 @@ type UpCommand struct {
 func (c *UpCommand) Run(args []string) int {
 
 	var insecure bool
+	var logLevel string
 	flags := flag.NewFlagSet("up", flag.ContinueOnError)
 	flags.BoolVar(&insecure, "insecure", false, "")
+	flags.StringVar(&logLevel, "log-level", "info", "")
 	flags.Usage = func() { c.Ui.Error(c.Help()) }
 
 	errR, errW := io.Pipe()
@@ -68,11 +74,51 @@ func (c *UpCommand) Run(args []string) int {
 		return 1
 	}
 
-	sigCh := make(chan os.Signal)
-	signal.Notify(sigCh, os.Interrupt)
-	select {
-	case <-sigCh:
-		c.Ui.Error("Interrupted")
+	// If docker runs on boot2docker, port forwarding is needed.
+	if runtime.GOOS == "darwin" {
+
+		c.Ui.Output("")
+		c.Ui.Output("==> WARNING: You're running docker on boot2docker!")
+		c.Ui.Output("  To connect to master api server from local environment,")
+		c.Ui.Output("  port forwarding is needed. boot2kubernetes starts ")
+		c.Ui.Output("  server for that. To stop server, use ^C (Interrupt).\n")
+
+		// Create logger with Log level
+		logger := log.New(&logutils.LevelFilter{
+			Levels:   []logutils.LogLevel{"DEBUG", "INFO", "WARN", "ERROR"},
+			MinLevel: (logutils.LogLevel)(strings.ToUpper(logLevel)),
+			Writer:   os.Stderr,
+		}, "", log.LstdFlags)
+		logger.Printf("[DEBUG] LogLevel: %s", logLevel)
+
+		// Setup port forward server
+		server := &PortForwardServer{
+			Logger:       logger,
+			LocalServer:  DefaultLocalServer,
+			RemoteServer: DefaultRemoteServer,
+		}
+
+		doneCh, errCh, err := server.Start()
+		if err != nil {
+			c.Ui.Error(fmt.Sprintf(
+				"Failed to start port forwarding server: %s", err))
+			return 1
+		}
+
+		sigCh := make(chan os.Signal)
+		signal.Notify(sigCh, os.Interrupt)
+		select {
+		case err := <-errCh:
+			c.Ui.Error(fmt.Sprintf(
+				"Error while running port forwarding server: %s", err))
+			close(doneCh)
+			return 1
+		case <-sigCh:
+			c.Ui.Error("\nInterrupted!")
+			close(doneCh)
+			// Need some time to closing work...
+			time.Sleep(ClosingTime)
+		}
 	}
 
 	return 0
