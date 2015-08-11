@@ -10,4 +10,6 @@ This document shows which we will do for next release (TODO) or future plan.
 
 ## Future
 
+- `upgrade` to replace command to new one (Check how boot2docker does it)
 - Integrate docker-machine to setup docker environment not only local but some cloud provider and start k8s there
+- Enable to change kubernetes version (multiple `k8s.yml` ?)
