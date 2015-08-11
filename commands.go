@@ -18,8 +18,8 @@ func Commands(meta *command.Meta) map[string]cli.CommandFactory {
 			}, nil
 		},
 
-		"down": func() (cli.Command, error) {
-			return &command.DownCommand{
+		"destroy": func() (cli.Command, error) {
+			return &command.DestroyCommand{
 				Meta: *meta,
 			}, nil
 		},
