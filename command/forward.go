@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/logutils"
 	"github.com/mitchellh/go-homedir"
@@ -27,6 +28,9 @@ const (
 	B2DSshKeyFile string = "id_boot2docker"
 	B2DSshServer  string = "localhost:2022"
 	B2DSshUser    string = "docker"
+
+	// ClosingTime is time to wait until all server is closing
+	ClosingTime = 1 * time.Second
 )
 
 var (
@@ -63,7 +67,7 @@ func (c *ForwardCommand) Run(args []string) int {
 	// to run docker.
 	if runtime.GOOS != "darwin" {
 		c.Ui.Error("You don't need to run port forwarding")
-		return 1
+		return 0
 	}
 
 	// Create logger with Log level
@@ -97,8 +101,10 @@ func (c *ForwardCommand) Run(args []string) int {
 		close(doneCh)
 		return 1
 	case <-sigCh:
-		c.Ui.Error("\nInterrupted")
+		c.Ui.Error("\nInterrupted!")
 		close(doneCh)
+		// Need some time to closing work...
+		time.Sleep(ClosingTime)
 	}
 
 	return 0
@@ -152,25 +158,37 @@ func (s *PortForwardServer) Start() (chan struct{}, chan error, error) {
 			"failed to start local server %s: %s", s.LocalServer, err)
 	}
 	s.Logger.Printf("[INFO] Start local server")
+	s.Logger.Printf("[INFO] Listening on %s (Ready to connection)", s.LocalServer)
 
 	doneCh, errCh := make(chan struct{}), make(chan error)
+
+	// Watch the doneCh and close server connection
+	go func() {
+		select {
+		case <-doneCh:
+			s.Logger.Println("[INFO] Stop server and close ssh connection")
+			localListener.Close()
+			sshConn.Close()
+		}
+	}()
+
 	go func() {
 		for {
-			s.Logger.Printf("[INFO] Listening on %s", s.LocalServer)
 
 			// Accept requst and start local connection
 			localConn, err := localListener.Accept()
 			if err != nil {
 				errCh <- fmt.Errorf("failed to accept request: %s", err)
 			}
-			s.Logger.Printf("[INFO] Accept request")
+			s.Logger.Printf("[DEBUG] Accept request")
 
 			// Establish connection with remote server via SSH connection
 			sshRemoteConn, err := sshConn.Dial("tcp", s.RemoteServer)
 			if err != nil {
 				errCh <- fmt.Errorf(
 					"failed to establish connection with remote server on boot2docker:\n"+"%s\n"+
-						"This error happends when kubelet is not working. Check it via `docker ps` command.", err)
+						"This error happends when kubelet is not working. "+
+						"Check it via `docker ps` command.", err)
 			}
 			s.Logger.Printf("[DEBUG] Establish connection with remote server %s", s.RemoteServer)
 
@@ -179,7 +197,8 @@ func (s *PortForwardServer) Start() (chan struct{}, chan error, error) {
 				s.Logger.Printf("[DEBUG] Start data transfer from remote server to local")
 				_, err := io.Copy(localConn, sshRemoteConn)
 				if err != nil {
-					s.Logger.Printf("[ERROR] Failed to transfer from remote server to local: %s", err)
+					s.Logger.Printf(
+						"[ERROR] Failed to transfer from remote server to local: %s", err)
 				}
 				doneRWCh <- struct{}{}
 			}()
@@ -193,21 +212,10 @@ func (s *PortForwardServer) Start() (chan struct{}, chan error, error) {
 				doneRWCh <- struct{}{}
 			}()
 
-			select {
-			case <-doneRWCh:
-				// Done data transfer
-			case <-doneCh:
-				// Done from outside
-				localListener.Close()
-				localConn.Close()
-				sshConn.Close()
-				sshRemoteConn.Close()
-				return
-			}
-
+			<-doneRWCh
 			localConn.Close()
 			sshRemoteConn.Close()
-			s.Logger.Printf("[INFO] Finish forwarding")
+			s.Logger.Printf("[DEBUG] Finish forwarding")
 		}
 	}()
 
