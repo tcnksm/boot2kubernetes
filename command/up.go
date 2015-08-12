@@ -55,7 +55,7 @@ func (c *UpCommand) Run(args []string) int {
 	// Setup new docker-compose project
 	project, err := docker.NewProject(&docker.Context{
 		Context: project.Context{
-			Log:          true,
+			Log:          false,
 			ComposeBytes: compose,
 			ProjectName:  "boot2k8s",
 		},
@@ -73,6 +73,7 @@ func (c *UpCommand) Run(args []string) int {
 			"Failed to up project: %s", err))
 		return 1
 	}
+	c.Ui.Output("Successfully start kubernetes cluster")
 
 	// If docker runs on boot2docker, port forwarding is needed.
 	if runtime.GOOS == "darwin" {
@@ -116,7 +117,7 @@ func (c *UpCommand) Run(args []string) int {
 		case <-sigCh:
 			c.Ui.Error("\nInterrupted!")
 			close(doneCh)
-			// Need some time to closing work...
+			// Need some time to c` losing work...
 			time.Sleep(ClosingTime)
 		}
 	}
