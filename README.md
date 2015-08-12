@@ -20,11 +20,13 @@ $ boot2k8s up
 
 This command pulls required docker images and starts them. You can check which image is used, or which option/command in [`k8s.yml`](/config/k8s.yml). After container is running, you can start to run `kubectl` (You need to install it). If you run docker on boot2docker-vm, it also starts port forwarding server for `kubectl`. 
 
-To down (stop) cluster,
+To destroy cluster,
 
 ```bash
-$ boot2k8s down
+$ boot2k8s destroy
 ```
+
+This command will destroy kubernetes container started by `boot2k8s`. Not only that but also remove containers which are started by kubernetes (will ask you confirmation). 
 
 ## Install
 
