@@ -26,7 +26,7 @@ To destroy cluster,
 $ boot2k8s destroy
 ```
 
-This command will destroy kubernetes container started by `boot2k8s`. Not only that but also remove containers which are started by kubernetes (will ask you confirmation). 
+This command will destroy kubernetes containers started by `boot2k8s`. Not only that but also remove containers which are started by kubernetes (will ask confirmation). 
 
 ## Install
 
@@ -48,8 +48,7 @@ $ go get -d github.com/tcnksm/boot2kubernetes
 
 ## References
 
-- [Running Kubernetes locally via Docker](https://github.com/GoogleCloudPlatform/kubernetes/blob/release-1.0/docs/getting-started-guides/docker.md)
-- [1 command to Kubernetes with Docker compose](http://sebgoa.blogspot.jp/2015/04/1-command-to-kubernetes-with-docker.html)
+What `boot2k8s` does is same as official doc ["Running Kubernetes locally via Docker"](https://github.com/GoogleCloudPlatform/kubernetes/blob/release-1.0/docs/getting-started-guides/docker.md) describes. If you don't want to install additional fancy binary on your PC, should follow that article. I also inspired by an article ["1 command to Kubernetes with Docker compose"](http://sebgoa.blogspot.jp/2015/04/1-command-to-kubernetes-with-docker.html), thanks.
 
 ## Author
 
