@@ -2,6 +2,7 @@ package command
 
 import (
 	"bufio"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -15,7 +16,16 @@ import (
 	"github.com/docker/libcompose/docker"
 	"github.com/docker/libcompose/project"
 	"github.com/hashicorp/logutils"
+	"github.com/samalba/dockerclient"
 	"github.com/tcnksm/boot2kubernetes/config"
+)
+
+const (
+	// CheckInterval is how often check k8s container is ready
+	CheckInterval = 1 * time.Second
+
+	// CheckTimeout is timeout for waiting k8s container is ready
+	CheckTimeOut = 300 * time.Second
 )
 
 type UpCommand struct {
@@ -23,7 +33,6 @@ type UpCommand struct {
 }
 
 func (c *UpCommand) Run(args []string) int {
-
 	var insecure bool
 	var logLevel string
 	flags := flag.NewFlagSet("up", flag.ContinueOnError)
@@ -52,15 +61,17 @@ func (c *UpCommand) Run(args []string) int {
 		return 1
 	}
 
-	// Setup new docker-compose project
-	project, err := docker.NewProject(&docker.Context{
+	context := &docker.Context{
 		Context: project.Context{
 			Log:          false,
 			ComposeBytes: compose,
 			ProjectName:  "boot2k8s",
 		},
 		Tls: !insecure,
-	})
+	}
+
+	// Setup new docker-compose project
+	project, err := docker.NewProject(context)
 
 	if err != nil {
 		c.Ui.Error(fmt.Sprintf(
@@ -73,7 +84,23 @@ func (c *UpCommand) Run(args []string) int {
 			"Failed to up project: %s", err))
 		return 1
 	}
-	c.Ui.Output("Successfully start kubernetes cluster")
+
+	if err := context.CreateClient(); err != nil {
+		c.Ui.Error(fmt.Sprintf(
+			"Failed to create docker client", err))
+		return 1
+	}
+
+	select {
+	case <-afterContainerReady(context.Client):
+		c.Ui.Info("Successfully start kubernetes cluster")
+	case <-time.After(CheckTimeOut):
+		c.Ui.Error("")
+		c.Ui.Error("Timeout happened while waiting cluster containers are ready.")
+		c.Ui.Error("Request to kubelet may be failed. Check the containers are working")
+		c.Ui.Error("with `docker ps` command by yourself.")
+		return 1
+	}
 
 	// If docker runs on boot2docker, port forwarding is needed.
 	if runtime.GOOS == "darwin" {
@@ -117,7 +144,7 @@ func (c *UpCommand) Run(args []string) int {
 		case <-sigCh:
 			c.Ui.Error("\nInterrupted!")
 			close(doneCh)
-			// Need some time to c` losing work...
+			// Need some time for closing work...
 			time.Sleep(ClosingTime)
 		}
 	}
@@ -137,4 +164,41 @@ Options:
   -insecure    Allow insecure non-TLS connection to docker client. 
 `
 	return strings.TrimSpace(helpText)
+}
+
+// afterContainerReady waits for the cluster ready and then sends the struct{}
+// on the returned channel. Detection of cluster ready is very heuristic way,
+// just checking number of container which is needed for running cluster.
+func afterContainerReady(c dockerclient.Client) chan struct{} {
+	doneCh := make(chan struct{})
+
+	// Marshaling to post filter as API request
+	filterLocalMasterStr, err := json.Marshal(FilterLocalMaster)
+	if err != nil {
+		// Should not reach here....
+		panic(fmt.Sprintf(
+			"Failed to marshal FilterLocalMaster: %s", err))
+	}
+
+	ticker := time.NewTicker(CheckInterval)
+	go func() {
+		fmt.Fprintf(os.Stderr, "Wait until containers are readly")
+		for _ = range ticker.C {
+			fmt.Fprintf(os.Stderr, ".")
+			// Get Container info from deamon based on fileter
+			localMasters, err := c.ListContainers(true, false, (string)(filterLocalMasterStr))
+			if err != nil {
+				// Just ignore error
+				continue
+			}
+
+			if len(localMasters) > 3 {
+				fmt.Fprintf(os.Stderr, "\n")
+				doneCh <- struct{}{}
+				ticker.Stop()
+			}
+		}
+	}()
+
+	return doneCh
 }
