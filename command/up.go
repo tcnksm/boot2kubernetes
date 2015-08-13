@@ -79,6 +79,7 @@ func (c *UpCommand) Run(args []string) int {
 		return 1
 	}
 
+	c.Ui.Output("Start kubernetes cluster")
 	if err := project.Up(); err != nil {
 		c.Ui.Error(fmt.Sprintf(
 			"Failed to start container: %s", err))
