@@ -17,6 +17,14 @@ import (
 	"github.com/tcnksm/boot2kubernetes/config"
 )
 
+var FilterLocalMaster = map[string][]string{
+	"label": []string{"io.kubernetes.pod.name=default/k8s-master-127.0.0.1"},
+}
+
+var FilterK8SRelated = map[string][]string{
+	"label": []string{"io.kubernetes.pod.name"},
+}
+
 type DestroyCommand struct {
 	Meta
 }
@@ -77,12 +85,8 @@ func (c *DestroyCommand) Run(args []string) int {
 		return 1
 	}
 
-	filterLocalMaster := map[string][]string{
-		"label": []string{"io.kubernetes.pod.name=default/k8s-master-127.0.0.1"},
-	}
-
 	// Marshaling to post filter as API request
-	filterLocalMasterStr, err := json.Marshal(filterLocalMaster)
+	filterLocalMasterStr, err := json.Marshal(FilterLocalMaster)
 	if err != nil {
 		return 1
 	}
@@ -123,22 +127,18 @@ func (c *DestroyCommand) Run(args []string) int {
 		c.Ui.Output("")
 	}
 
-	filterUnknown := map[string][]string{
-		"label": []string{"io.kubernetes.pod.name"},
-	}
-
 	// Marshaling to post filter as API request
-	filterUnknownStr, err := json.Marshal(filterUnknown)
+	filterK8SRelatedStr, err := json.Marshal(FilterK8SRelated)
 	if err != nil {
 		return 1
 	}
 
-	unknownContainers, err := context.Client.ListContainers(true, false, (string)(filterUnknownStr))
+	relatedContainers, err := context.Client.ListContainers(true, false, (string)(filterK8SRelatedStr))
 	if err != nil {
 		return 1
 	}
 
-	if len(unknownContainers) < 1 {
+	if len(relatedContainers) < 1 {
 		// Correctly clean all containers
 		return 0
 	}
@@ -147,7 +147,7 @@ func (c *DestroyCommand) Run(args []string) int {
 	c.Ui.Error("==> WARNING: boot2kubernetes can not detect below containers")
 	c.Ui.Error("  are created by kubernetes which up by boot2kubernetes.")
 	c.Ui.Error("  Be sure below these will not be used anymore!")
-	for _, container := range unknownContainers {
+	for _, container := range relatedContainers {
 		c.Ui.Output(fmt.Sprintf("  %s", container.Names[0]))
 	}
 
@@ -161,7 +161,7 @@ func (c *DestroyCommand) Run(args []string) int {
 		return 1
 	}
 
-	resultCh, errCh := removeContainers(context.Client, unknownContainers, true, true)
+	resultCh, errCh := removeContainers(context.Client, relatedContainers, true, true)
 	go func() {
 		for res := range resultCh {
 			c.Ui.Output(fmt.Sprintf(
@@ -182,7 +182,6 @@ func (c *DestroyCommand) Synopsis() string {
 
 func (c *DestroyCommand) Help() string {
 	helpText := `Destroy kubernetes cluseter.
-
 
 Options:
 
