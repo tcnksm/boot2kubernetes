@@ -81,7 +81,7 @@ func (c *UpCommand) Run(args []string) int {
 
 	if err := project.Up(); err != nil {
 		c.Ui.Error(fmt.Sprintf(
-			"Failed to up project: %s", err))
+			"Failed to start container: %s", err))
 		return 1
 	}
 
@@ -91,13 +91,24 @@ func (c *UpCommand) Run(args []string) int {
 		return 1
 	}
 
+	sigCh := make(chan os.Signal)
+	signal.Notify(sigCh, os.Interrupt)
+
 	select {
 	case <-afterContainerReady(context.Client):
 		c.Ui.Info("Successfully start kubernetes cluster")
+	case <-sigCh:
+		c.Ui.Error("")
+		c.Ui.Error("Interrupted!")
+		c.Ui.Error("It's ambiguous that boot2kubernetes could correctly start containers.")
+		c.Ui.Error("So request to kubelet may be failed. Check the containers are working")
+		c.Ui.Error("with `docker ps` command by yourself.")
+		return 1
 	case <-time.After(CheckTimeOut):
 		c.Ui.Error("")
 		c.Ui.Error("Timeout happened while waiting cluster containers are ready.")
-		c.Ui.Error("Request to kubelet may be failed. Check the containers are working")
+		c.Ui.Error("It's ambiguous that boot2kubernetes could correctly start containers.")
+		c.Ui.Error("So request to kubelet may be failed. Check the containers are working")
 		c.Ui.Error("with `docker ps` command by yourself.")
 		return 1
 	}
