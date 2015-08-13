@@ -4,10 +4,11 @@ This document shows which we will do for next release (TODO) or future plan.
 
 ## 0.1.0
 
-- (**DONE**) `destroy` command to stop all related container
+- **DONE**: `destroy` command to stop all related container
+- **DONE**: Fix bug sometimes it can not start port forwarding, because contaienr is not ready
+- **DONE**: Delete libcompose (logrus) output
 - [mitchellh/panicwrap](https://github.com/mitchellh/panicwrap) for crash reporting
-- Fix panic when started from image pulling
-- Fix bug sometimes it can not start port forwarding, because contaienr is not ready
+- Fix bug it panics when started from image pulling (Not happened...)
 - Binary release (and homebrew formula)
 
 ## Future
