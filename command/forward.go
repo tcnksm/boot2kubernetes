@@ -17,9 +17,7 @@ import (
 
 	"github.com/hashicorp/logutils"
 	"github.com/mitchellh/go-homedir"
-
-	// This should be temporary, libcompose imports imcomplete ssh package
-	"github.com/tcnksm/boot2kubernetes/vendor/ssh"
+	"golang.org/x/crypto/ssh"
 )
 
 const (
