@@ -1,3 +1,14 @@
+ORG := github.com/tcnksm
+REPO := $(ORG)/boot2kubernetes
+REPO_PATH :=$(GOPATH)/src/$(REPO)
+
+# WARN: libcompose includes partial/incomplete golang.org/x/crypto/ssh package as Godep dependency.
+# So if boot2k8s includes ssh package, go build tries to read partial/incomplete ssh package and fails..
+# libcompose vendors package which is not go-get-able, so it should be high priority GOPATH,
+# To only use normal ssh package first, create TMP_GOPATH and set it as first GOPATH
+TMP_GOPATH := $(REPO_PATH)/tmp_gopath
+GOPATH_ := $(TMP_GOPATH):$(GOPATH)/src/github.com/docker/libcompose/Godeps/_workspace:$(GOPATH)
+
 # Embedding commit hash
 COMMIT = $$(git describe --always)
 
@@ -7,34 +18,38 @@ XC_ARCH := "386 amd64"
 
 default: test
 
+# Delete tmp_gopath directory which create temporary gopath
+clean: 
+	rm -fr $(REPO_PATH)/tmp_gopath
+
+#go get -v golang.org/x/tools/cmd/vet	
+#go get -v github.com/golang/lint/golint
 deps: clean
-	go get -v golang.org/x/tools/cmd/vet	
-	go get -v github.com/golang/lint/golint
-	go get -v github.com/jteeuwen/go-bindata
+	go get -v github.com/jteeuwen/go-bindata/...
 	go get -v -d github.com/docker/libcompose
-	go get -v -d github.com/docker/docker
-	go get -v golang.org/x/net/html/atom
+	go get -v golang.org/x/net/html
 	go get -v golang.org/x/crypto/ssh
-	mkdir $(GOPATH)/src/github.com/docker/docker/autogen
-	ln -s $(GOPATH)/src/github.com/docker/libcompose/Godeps/_workspace/src/github.com/docker/docker/autogen/dockerversion $(GOPATH)/src/github.com/docker/docker/autogen/dockerversion
-	go get -d -v ./... 
+	go get -v golang.org/x/oauth2
+	mkdir -p $(TMP_GOPATH)/src/golang.org/x/crypto
+	ln -s $(GOPATH)/src/golang.org/x/crypto/ssh $(TMP_GOPATH)/src/golang.org/x/crypto/ssh
+	GOPATH=$(GOPATH_) go get -d -v ./... 
 
 bindata: deps
 	cd config && $(GOPATH)/bin/go-bindata -pkg="config" .	
 
 build: bindata
-	env GOPATH=$(GOPATH_) go build -o bin/boot2k8s
+	GOPATH=$(GOPATH_) go build -o bin/boot2k8s -ldflags "-X main.GitCommit \"$(COMMIT)\""
 
 package: bindata
-	@sh -c "'$(CURDIR)/scripts/package.sh'"
+	sh -c "'$(CURDIR)/scripts/package.sh'"
 
 test: build
 	go vet ./...
 	go test -race
-	env GOPATH=$(GOPATH_) go test -v ./...
+	go test -v ./...
 
-dist-docker: bindata
-	/usr/local/bin/docker run --rm -v $(GOPATH)/src/github.com/tcnksm/boot2kubernetes:/gopath/src/github.com/tcnksm/boot2kubernetes -w /gopath/src/github.com/tcnksm/boot2kubernetes tcnksm/gox:1.5rc make package
+build-docker:
+	/usr/local/bin/docker run --rm -v $(REPO_PATH):/gopath/src/$(REPO) -w /gopath/src/$(REPO) tcnksm/gox:1.5rc make build
 
-clean:
-	rm -fr $(GOPATH)/src/github.com/docker/docker/autogen
+dist-docker:
+	/usr/local/bin/docker run --rm -v $(REPO_PATH):/gopath/src/$(REPO) -w /gopath/src/$(REPO) tcnksm/gox:1.5rc make package
