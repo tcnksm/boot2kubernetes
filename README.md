@@ -30,11 +30,15 @@ This command will destroy kubernetes containers started by `boot2k8s`. Not only 
 
 ## Install
 
-To install, use `go get`:
+If you want to build it from source, use `go get` and `make` (This is not recommended way),
 
 ```bash
 $ go get -d github.com/tcnksm/boot2kubernetes
+$ cd $GOPATH/src/github.com/tcnksm/boot2kubernetes
+$ make build
 ```
+
+After this, binary is in `./bin` directory. 
 
 ## Contribution
 
