@@ -57,6 +57,18 @@ func (c *DestroyCommand) Run(args []string) int {
 		return 1
 	}
 
+	// Set up docker client
+	clientFactory, err := docker.NewDefaultClientFactory(
+		docker.ClientOpts{
+			TLS: !insecure,
+		},
+	)
+	if err != nil {
+		c.Ui.Error(fmt.Sprintf(
+			"Failed to construct Docker client: %s", err))
+		return 1
+	}
+
 	// Setup new docker-compose project
 	context := &docker.Context{
 		Context: project.Context{
@@ -64,7 +76,7 @@ func (c *DestroyCommand) Run(args []string) int {
 			ComposeBytes: compose,
 			ProjectName:  "boot2k8s",
 		},
-		Tls: !insecure,
+		ClientFactory: clientFactory,
 	}
 
 	project, err := docker.NewProject(context)
@@ -80,10 +92,7 @@ func (c *DestroyCommand) Run(args []string) int {
 		return 1
 	}
 
-	if err := context.CreateClient(); err != nil {
-		c.Ui.Error("Failed to create client")
-		return 1
-	}
+	client := clientFactory.Create(nil)
 
 	// Marshaling to post filter as API request
 	filterLocalMasterStr, err := json.Marshal(FilterLocalMaster)
@@ -92,7 +101,7 @@ func (c *DestroyCommand) Run(args []string) int {
 	}
 
 	// Get Container info from deamon based on fileter
-	localMasters, err := context.Client.ListContainers(true, false, (string)(filterLocalMasterStr))
+	localMasters, err := client.ListContainers(true, false, (string)(filterLocalMasterStr))
 	if err != nil {
 		return 1
 	}
@@ -113,7 +122,7 @@ func (c *DestroyCommand) Run(args []string) int {
 			return 1
 		}
 
-		resultCh, errCh := removeContainers(context.Client, localMasters, true, true)
+		resultCh, errCh := removeContainers(client, localMasters, true, true)
 		go func() {
 			for res := range resultCh {
 				c.Ui.Output(fmt.Sprintf(
@@ -133,7 +142,7 @@ func (c *DestroyCommand) Run(args []string) int {
 		return 1
 	}
 
-	relatedContainers, err := context.Client.ListContainers(true, false, (string)(filterK8SRelatedStr))
+	relatedContainers, err := client.ListContainers(true, false, (string)(filterK8SRelatedStr))
 	if err != nil {
 		return 1
 	}
@@ -161,7 +170,7 @@ func (c *DestroyCommand) Run(args []string) int {
 		return 1
 	}
 
-	resultCh, errCh := removeContainers(context.Client, relatedContainers, true, true)
+	resultCh, errCh := removeContainers(client, relatedContainers, true, true)
 	go func() {
 		for res := range resultCh {
 			c.Ui.Output(fmt.Sprintf(

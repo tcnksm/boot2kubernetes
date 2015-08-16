@@ -61,18 +61,30 @@ func (c *UpCommand) Run(args []string) int {
 		return 1
 	}
 
+	// Set up docker client
+	clientFactory, err := docker.NewDefaultClientFactory(
+		docker.ClientOpts{
+			TLS: !insecure,
+		},
+	)
+	if err != nil {
+		c.Ui.Error(fmt.Sprintf(
+			"Failed to construct Docker client: %s", err))
+		return 1
+	}
+
+	// Setup new docker-compose project
 	context := &docker.Context{
 		Context: project.Context{
 			Log:          false,
 			ComposeBytes: compose,
 			ProjectName:  "boot2k8s",
 		},
-		Tls: !insecure,
+		ClientFactory: clientFactory,
 	}
 
 	// Setup new docker-compose project
 	project, err := docker.NewProject(context)
-
 	if err != nil {
 		c.Ui.Error(fmt.Sprintf(
 			"Failed to setup project: %s", err))
@@ -86,17 +98,13 @@ func (c *UpCommand) Run(args []string) int {
 		return 1
 	}
 
-	if err := context.CreateClient(); err != nil {
-		c.Ui.Error(fmt.Sprintf(
-			"Failed to create docker client", err))
-		return 1
-	}
+	client := clientFactory.Create(nil)
 
 	sigCh := make(chan os.Signal)
 	signal.Notify(sigCh, os.Interrupt)
 
 	select {
-	case <-afterContainerReady(context.Client):
+	case <-afterContainerReady(client):
 		c.Ui.Info("Successfully start kubernetes cluster")
 	case <-sigCh:
 		c.Ui.Error("")
