@@ -1,4 +1,5 @@
 bin/
 pkg/
+tmp_gopath/
 *.test
 config/bindata.go
