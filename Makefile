@@ -22,11 +22,11 @@ default: test
 clean: 
 	rm -fr $(REPO_PATH)/tmp_gopath
 
-#go get -v golang.org/x/tools/cmd/vet	
-#go get -v github.com/golang/lint/golint
 deps: clean
+	go get -v golang.org/x/tools/cmd/vet
+	go get -v github.com/golang/lint/golint
 	go get -v github.com/jteeuwen/go-bindata/...
-	go get -v -d github.com/docker/libcompose
+	go get -v -d -u github.com/docker/libcompose
 	go get -v golang.org/x/net/html
 	go get -v golang.org/x/crypto/ssh
 	go get -v golang.org/x/oauth2
