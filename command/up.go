@@ -108,8 +108,9 @@ func (c *UpCommand) Run(args []string) int {
 	case <-afterContainerReady(client):
 		c.Ui.Info("Successfully start kubernetes cluster")
 	case err := <-upErrCh:
-		c.Ui.Error(fmt.Sprintf(
-			"Failed to start container: %s", err))
+		c.Ui.Error("")
+		c.Ui.Error(fmt.Sprintf("Failed to start containers: %s", err))
+		c.Ui.Error("Check docker daemon is wroking")
 		return 1
 	case <-sigCh:
 		c.Ui.Error("")
