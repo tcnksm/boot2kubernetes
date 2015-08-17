@@ -22,7 +22,7 @@ import (
 
 const (
 	// CheckInterval is how often check k8s container is ready
-	CheckInterval = 1 * time.Second
+	CheckInterval = 3 * time.Second
 
 	// CheckTimeout is timeout for waiting k8s container is ready
 	CheckTimeOut = 300 * time.Second
@@ -91,12 +91,13 @@ func (c *UpCommand) Run(args []string) int {
 		return 1
 	}
 
-	c.Ui.Output("Start kubernetes cluster")
-	if err := project.Up(); err != nil {
-		c.Ui.Error(fmt.Sprintf(
-			"Failed to start container: %s", err))
-		return 1
-	}
+	c.Ui.Output("Start kubernetes cluster!")
+	upErrCh := make(chan error)
+	go func() {
+		if err := project.Up(); err != nil {
+			upErrCh <- err
+		}
+	}()
 
 	client := clientFactory.Create(nil)
 
@@ -106,6 +107,10 @@ func (c *UpCommand) Run(args []string) int {
 	select {
 	case <-afterContainerReady(client):
 		c.Ui.Info("Successfully start kubernetes cluster")
+	case err := <-upErrCh:
+		c.Ui.Error(fmt.Sprintf(
+			"Failed to start container: %s", err))
+		return 1
 	case <-sigCh:
 		c.Ui.Error("")
 		c.Ui.Error("Interrupted!")
