@@ -8,7 +8,7 @@
 [license]: https://github.com/tcnksm/boot2kubernetes/blob/master/LICENSE
 [godocs]: http://godoc.org/github.com/tcnksm/boot2kubernetes
 
-`boot2k8s` starts single node [kubernetes](https://github.com/googlecloudplatform/kubernetes) cluster with _**one command**_ using docker :whale:. The purpose of this projcet is building kubernetes environment in fast way for testing or experiment on your development enviromnet. _Kubernetes version is 1.0.x_. 
+`boot2k8s` starts single node [kubernetes](https://github.com/googlecloudplatform/kubernetes) cluster with _**one command**_ using docker :whale:. The purpose of this project is building kubernetes environment in fast way for testing or experiment on your development environment. _Kubernetes version is 1.0.x_. 
 
 ## Demo 
 
@@ -37,13 +37,13 @@ This command will destroy kubernetes containers started by `boot2k8s`. Not only 
 
 ## Install
 
-If you use OSX, you can use homebrew for isntalling,
+If you use OSX, you can use homebrew,
 
 ```bash
 $ brew tap tcnksm/boot2k8s
 $ brew install boot2k8s
 ```
-If you are on other platform, download a binary from [relase page](https://github.com/tcnksm/boot2kubernetes/releases) and place it on your `$PATH`.
+If you are on other platform, download a binary from [release page](https://github.com/tcnksm/boot2kubernetes/releases) and place it on your `$PATH`.
 
 ## Contribution
 
