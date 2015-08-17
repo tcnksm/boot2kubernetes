@@ -95,14 +95,12 @@ func (c *DestroyCommand) Run(args []string) int {
 	client := clientFactory.Create(nil)
 
 	// Marshaling to post filter as API request
-	filterLocalMasterStr, err := json.Marshal(FilterLocalMaster)
-	if err != nil {
-		return 1
-	}
-
+	filterLocalMasterStr, _ := json.Marshal(FilterLocalMaster)
 	// Get Container info from deamon based on fileter
 	localMasters, err := client.ListContainers(true, false, (string)(filterLocalMasterStr))
 	if err != nil {
+		c.Ui.Error(fmt.Sprintf(
+			"Failed to list containers: %s", err))
 		return 1
 	}
 
@@ -137,13 +135,11 @@ func (c *DestroyCommand) Run(args []string) int {
 	}
 
 	// Marshaling to post filter as API request
-	filterK8SRelatedStr, err := json.Marshal(FilterK8SRelated)
-	if err != nil {
-		return 1
-	}
-
+	filterK8SRelatedStr, _ := json.Marshal(FilterK8SRelated)
 	relatedContainers, err := client.ListContainers(true, false, (string)(filterK8SRelatedStr))
 	if err != nil {
+		c.Ui.Error(fmt.Sprintf(
+			"Failed to list containers: %s", err))
 		return 1
 	}
 
