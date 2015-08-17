@@ -1,5 +1,7 @@
 bin/
-pkg/
+release/
 tmp_gopath/
-*.test
 config/bindata.go
+.envrc
+*.test
+
