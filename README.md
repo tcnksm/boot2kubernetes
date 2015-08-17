@@ -8,7 +8,7 @@
 [license]: https://github.com/tcnksm/boot2kubernetes/blob/master/LICENSE
 [godocs]: http://godoc.org/github.com/tcnksm/boot2kubernetes
 
-`boot2k8s` starts single node [kubernetes](https://github.com/googlecloudplatform/kubernetes) cluster with _**one command**_ using docker :whale:. The purpose of this project is building kubernetes environment in fast way for testing or experiment on your development environment. _Kubernetes version is 1.0.x_. 
+`boot2k8s` starts single node [kubernetes](https://github.com/googlecloudplatform/kubernetes) cluster in _**one command**_ using docker :whale:. The purpose of this project is building kubernetes in fast way for testing or experiment on your development environment. _Kubernetes version is 1.0.x_. 
 
 ## Demo 
 
