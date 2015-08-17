@@ -24,6 +24,7 @@ DIR=$(cd $(dirname ${0})/.. && pwd)
 cd ${DIR}
 
 VERSION=$(grep "const Version " version.go | sed -E 's/.*"(.+)"$/\1/')
+COMMIT=$(git describe --always)
 
 echo "====> Cross-compiling ${REPO} by mitchellh/gox"
 # You can set ghr option via docker run option -e 'GOX_OPT=YOUR_OPT'"
@@ -36,6 +37,7 @@ GOPATH=${GOPATH_} gox \
     -parallel=${XC_PARALLEL} \
     -os="${XC_OS}" \
     -arch="${XC_ARCH}" \
+    -ldflags "-X main.GitCommit \"${COMMIT}\"" \
     -output="release/{{.OS}}_{{.Arch}}/boot2k8s" \
     ${GOX_OPT}
 
@@ -66,6 +68,7 @@ echo "====> Release to GitHub by tcnksm/ghr"
 ghr --username ${OWNER} \
     --repository ${REPO} \
     --token ${GITHUB_TOKEN} \
+    --delete \
     ${GHR_OPT} \
     ${VERSION} release/dist/${VERSION}/
 
