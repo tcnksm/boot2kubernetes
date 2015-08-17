@@ -29,10 +29,10 @@ test-deps:
 
 deps: clean
 	go get -v github.com/jteeuwen/go-bindata/...
-	go get -v -d -u github.com/docker/libcompose
-	go get -v golang.org/x/net/html golang.org/x/oauth2 # FIXME
-	mkdir $(TMP_GOPATH)
-	GOPATH=$(TMP_GOPATH) go get -v golang.org/x/crypto/ssh 
+	go get -v -d github.com/docker/libcompose
+	@go get golang.org/x/net/html golang.org/x/oauth2 # FIXME
+	@mkdir $(TMP_GOPATH)
+	@GOPATH=$(TMP_GOPATH) go get golang.org/x/crypto/ssh 
 	GOPATH=$(GOPATH_) go get -d -v ./... 
 
 bindata: deps
