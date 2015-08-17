@@ -10,6 +10,13 @@
 
 `boot2k8s` starts single node [kubernetes](https://github.com/googlecloudplatform/kubernetes) cluster with _**one command**_ using docker :whale:. The purpose of this projcet is building kubernetes environment in fast way for testing or experiment on your development enviromnet. _Kubernetes version is 1.0.x_. 
 
+## Demo 
+
+This demo shows starting kubenetes cluster using `boot2k8s`and sending request via `kubectl` (on OSX)
+
+![demo](http://g.recordit.co/UG8eCEZJnZ.gif)
+
+
 ## Usage
 
 To up cluster,
@@ -30,15 +37,13 @@ This command will destroy kubernetes containers started by `boot2k8s`. Not only 
 
 ## Install
 
-If you want to build it from source, use `go get` and `make` (This is not recommended way),
+If you use OSX, you can use homebrew for isntalling,
 
 ```bash
-$ go get -d github.com/tcnksm/boot2kubernetes
-$ cd $GOPATH/src/github.com/tcnksm/boot2kubernetes
-$ make build
+$ brew tap tcnksm/boot2k8s
+$ brew install boot2k8s
 ```
-
-After this, binary is in `./bin` directory. 
+If you are on other platform, download a binary from [relase page](https://github.com/tcnksm/boot2kubernetes/releases) and place it on your `$PATH`.
 
 ## Contribution
 
@@ -49,6 +54,17 @@ After this, binary is in `./bin` directory.
 1. Run test suite with the `go test ./...` command and confirm that it passes
 1. Run `gofmt -s`
 1. Create a new Pull Request
+
+To build `boot2k8s` from source, use `go get` and `make`, 
+
+```bash
+$ go get -d github.com/tcnksm/boot2kubernetes
+$ cd $GOPATH/src/github.com/tcnksm/boot2kubernetes
+$ make build
+```
+
+After this, binary is in `./bin` directory. 
+
 
 ## References
 
