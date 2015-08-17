@@ -18,20 +18,21 @@ XC_ARCH := "386 amd64"
 
 default: test
 
-# Delete tmp_gopath directory which create temporary gopath
+# Delete directories for using build
 clean: 
-	rm -fr $(REPO_PATH)/tmp_gopath
+	rm -fr $(TMP_GOPATH)
+	rm -fr bin
 
-deps: clean
+test-deps:
 	go get -v golang.org/x/tools/cmd/vet
 	go get -v github.com/golang/lint/golint
+
+deps: clean
 	go get -v github.com/jteeuwen/go-bindata/...
 	go get -v -d -u github.com/docker/libcompose
-	go get -v golang.org/x/net/html
-	go get -v golang.org/x/crypto/ssh
-	go get -v golang.org/x/oauth2
-	mkdir -p $(TMP_GOPATH)/src/golang.org/x/crypto
-	ln -s $(GOPATH)/src/golang.org/x/crypto/ssh $(TMP_GOPATH)/src/golang.org/x/crypto/ssh
+	go get -v golang.org/x/net/html golang.org/x/oauth2 # FIXME
+	mkdir $(TMP_GOPATH)
+	GOPATH=$(TMP_GOPATH) go get -v golang.org/x/crypto/ssh 
 	GOPATH=$(GOPATH_) go get -d -v ./... 
 
 bindata: deps
@@ -40,16 +41,14 @@ bindata: deps
 build: bindata
 	GOPATH=$(GOPATH_) go build -o bin/boot2k8s -ldflags "-X main.GitCommit \"$(COMMIT)\""
 
-package: bindata
-	sh -c "'$(CURDIR)/scripts/package.sh'"
+release: bindata
+	go get -v github.com/tcnksm/ghr # For parallel uploading
+	sh -c "'$(CURDIR)/scripts/release.sh' $(GITHUB_TOKEN)"
 
-test: build
+test: test-deps build
 	go vet ./...
 	go test -race
 	go test -v ./...
 
-build-docker:
-	/usr/local/bin/docker run --rm -v $(REPO_PATH):/gopath/src/$(REPO) -w /gopath/src/$(REPO) tcnksm/gox:1.5rc make build
-
-dist-docker:
-	/usr/local/bin/docker run --rm -v $(REPO_PATH):/gopath/src/$(REPO) -w /gopath/src/$(REPO) tcnksm/gox:1.5rc make package
+release-docker:
+	/usr/local/bin/docker run --rm -v $(REPO_PATH):/gopath/src/$(REPO) -w /gopath/src/$(REPO) -e GITHUB_TOKEN=$(GITHUB_TOKEN) tcnksm/gox:1.4.2 sh -c "apt-get update -y && apt-get install --no-install-recommends zip && make release"
