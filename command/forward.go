@@ -22,7 +22,7 @@ import (
 
 const (
 	// Boot2docker related constants.
-	// These constats are from github.com/boot2docker/boot2docker-cli
+	// These constants are from github.com/boot2docker/boot2docker-cli
 	B2DSshKeyFile string = "id_boot2docker"
 	B2DSshServer  string = "localhost:2022"
 	B2DSshUser    string = "docker"
@@ -173,7 +173,7 @@ func (s *PortForwardServer) Start() (chan struct{}, chan error, error) {
 	go func() {
 		for {
 
-			// Accept requst and start local connection
+			// Accept request and start local connection
 			localConn, err := localListener.Accept()
 			if err != nil {
 				errCh <- fmt.Errorf("failed to accept request: %s", err)
@@ -185,7 +185,7 @@ func (s *PortForwardServer) Start() (chan struct{}, chan error, error) {
 			if err != nil {
 				errCh <- fmt.Errorf(
 					"failed to establish connection with remote server on boot2docker:\n"+"%s\n"+
-						"This error happends when kubelet is not working. "+
+						"This error happens when kubelet is not working. "+
 						"Check it via `docker ps` command.", err)
 			}
 			s.Logger.Printf("[DEBUG] Establish connection with remote server %s", s.RemoteServer)
@@ -221,7 +221,7 @@ func (s *PortForwardServer) Start() (chan struct{}, chan error, error) {
 }
 
 // B2DSshAuthMethod return ssh auth method for boot2docker.
-// It reads & parse ssh key file and constuct auth method.
+// It reads & parses ssh key file and constructs auth method.
 // If something wrong, returns error.
 func B2DSshAuthMethod() (ssh.AuthMethod, error) {
 	home, err := homedir.Dir()
