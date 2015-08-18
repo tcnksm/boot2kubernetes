@@ -10,13 +10,6 @@
 
 `boot2k8s` starts single node [kubernetes](https://github.com/googlecloudplatform/kubernetes) cluster in _**one command**_ using docker :whale:. The purpose of this project is building kubernetes in fast way for testing or experiment on your development environment. _Kubernetes version is 1.0.x_. 
 
-## Demo 
-
-This demo shows starting kubenetes cluster using `boot2k8s`and sending request via `kubectl` (on OSX)
-
-![demo](http://g.recordit.co/UG8eCEZJnZ.gif)
-
-
 ## Usage
 
 To up cluster,
