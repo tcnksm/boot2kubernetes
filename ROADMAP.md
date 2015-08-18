@@ -5,7 +5,7 @@ This document shows which we will do for next release (TODO) or future plan.
 ## 0.1.0
 
 - **DONE**: `destroy` command to stop all related container
-- **DONE**: Fix bug sometimes it can not start port forwarding, because contaienr is not ready
+- **DONE**: Fix bug sometimes it can not start port forwarding, because container is not ready
 - **DONE**: Delete libcompose (logrus) output
 - **DONE**: Binary release (and homebrew formula)
 - **DONE**: `list` command to show all container which is started by boot2k8s

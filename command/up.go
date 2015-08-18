@@ -110,7 +110,7 @@ func (c *UpCommand) Run(args []string) int {
 	case err := <-upErrCh:
 		c.Ui.Error("")
 		c.Ui.Error(fmt.Sprintf("Failed to start containers: %s", err))
-		c.Ui.Error("Check docker daemon is wroking")
+		c.Ui.Error("Check docker daemon is working")
 		return 1
 	case <-sigCh:
 		c.Ui.Error("")
@@ -183,7 +183,7 @@ func (c *UpCommand) Synopsis() string {
 }
 
 func (c *UpCommand) Help() string {
-	helpText := `Up kubernetes cluseter
+	helpText := `Up kubernetes cluster
 
 Options:
 
@@ -208,10 +208,10 @@ func afterContainerReady(c dockerclient.Client) chan struct{} {
 
 	ticker := time.NewTicker(CheckInterval)
 	go func() {
-		fmt.Fprintf(os.Stderr, "Wait until containers are readly")
+		fmt.Fprintf(os.Stderr, "Wait until containers are ready")
 		for _ = range ticker.C {
 			fmt.Fprintf(os.Stderr, ".")
-			// Get Container info from deamon based on fileter
+			// Get Container info from daemon based on filter
 			localMasters, err := c.ListContainers(true, false, (string)(filterLocalMasterStr))
 			if err != nil {
 				// Just ignore error

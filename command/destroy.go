@@ -96,7 +96,7 @@ func (c *DestroyCommand) Run(args []string) int {
 
 	// Marshaling to post filter as API request
 	filterLocalMasterStr, _ := json.Marshal(FilterLocalMaster)
-	// Get Container info from deamon based on fileter
+	// Get Container info from daemon based on filter
 	localMasters, err := client.ListContainers(true, false, (string)(filterLocalMasterStr))
 	if err != nil {
 		c.Ui.Error(fmt.Sprintf(
@@ -186,7 +186,7 @@ func (c *DestroyCommand) Synopsis() string {
 }
 
 func (c *DestroyCommand) Help() string {
-	helpText := `Destroy kubernetes cluseter.
+	helpText := `Destroy kubernetes cluster.
 
 Options:
 
@@ -196,7 +196,7 @@ Options:
 }
 
 // removeContainers removes all containers parallelly.
-// It retuns error channel and if something wrong, error is sent there.
+// It returns error channel and if something wrong, error is sent there.
 func removeContainers(client dockerclient.Client, containers []dockerclient.Container, force, delVolume bool) (chan dockerclient.Container, chan error) {
 
 	var wg sync.WaitGroup
@@ -215,7 +215,7 @@ func removeContainers(client dockerclient.Client, containers []dockerclient.Cont
 	}
 
 	go func() {
-		// Wait until all remove task and close error channnel then
+		// Wait until all remove task and close error channel then
 		wg.Wait()
 		close(resultCh)
 		close(errCh)
